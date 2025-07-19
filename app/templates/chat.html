@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat - {{ session_type }} - Police Case Management{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sources.css') }}">
+<style>
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 200px);
+        min-height: 500px;
+    }
+    
+    .chat-header {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 10px 10px 0 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .chat-history {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+    }
+    
+    .chat-input {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+    }
+    
+    .message {
+        margin-bottom: 1rem;
+        max-width: 80%;
+    }
+    
+    .message-user {
+        align-self: flex-end;
+        margin-left: auto;
+        background-color: #e9f5ff;
+        border-radius: 15px 15px 0 15px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .message-ai {
+        align-self: flex-start;
+        background-color: #f8f9fa;
+        border-radius: 15px 15px 15px 0;
+        padding: 0.75rem 1rem;
+    }
+    
+    .message-meta {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+        text-align: right;
+    }
+    
+    .typing-indicator {
+        display: none;
+        padding: 0.5rem 1rem;
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        width: fit-content;
+    }
+    
+    .typing-indicator span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background-color: #6c757d;
+        border-radius: 50%;
+        margin-right: 3px;
+        animation: typing 1s infinite ease-in-out;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+        margin-right: 0;
+    }
+    
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-5px); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container animate__animated animate__fadeIn">
+    <div class="chat-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0">
+                    {% if session_type == 'Case Section Analysis' %}
+                        <i class="fas fa-gavel me-2"></i>
+                    {% elif session_type == 'Bail Analysis' %}
+                        <i class="fas fa-balance-scale me-2"></i>
+                    {% elif session_type == 'Human Analysis' %}
+                        <i class="fas fa-users me-2"></i>
+                    {% endif %}
+                    {{ session_type }}
+                </h4>
+                <small class="text-muted">Ask questions about {{ session_type.lower() }}</small>
+            </div>
+            <div>
+                <a href="{{ url_for('chat.new_chat_session', analysis_type=analysis_type) }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>New Chat
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chat-history" id="chatHistory">
+        <div class="welcome-message message message-ai">
+            <div class="message-content">
+                <p>Hello! I'm your AI assistant for {{ session_type }}. How can I help you today?</p>
+            </div>
+        </div>
+          {% for message in messages %}
+            <div class="message {% if message.sender == 'user' %}message-user{% else %}message-ai{% endif %}">
+                <div class="message-content">
+                    {{ message.message_text | safe }}
+                </div>
+                <div class="message-meta">
+                    {{ message.timestamp.strftime('%H:%M') }}
+                </div>
+            </div>
+        {% endfor %}
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    
+    <div class="chat-input">
+        <form id="chatForm">
+            <div class="input-group">
+                <input type="text" class="form-control" id="messageInput" placeholder="Type your message..." autocomplete="off">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/sources.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        const sessionId = "{{ session.id }}";  // UUID as string
+        const chatHistory = $('#chatHistory');
+        
+        // Debug output
+        console.log('Session ID from template:', sessionId, 'Type:', typeof sessionId);
+        console.log('Analysis type:', '{{ analysis_type }}');
+        
+        // Scroll to bottom of chat history
+        function scrollToBottom() {
+            chatHistory.scrollTop(chatHistory[0].scrollHeight);
+        }
+        
+        // Format message for display
+        function formatMessage(content, isUser, timestamp) {
+            const messageClass = isUser ? 'message-user' : 'message-ai';
+            const time = timestamp ? timestamp : formatTime(new Date());
+            
+            return `
+                <div class="message ${messageClass} animate__animated animate__fadeIn">
+                    <div class="message-content">
+                        ${content}
+                    </div>
+                    <div class="message-meta">
+                        ${time}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Format time
+        function formatTime(date) {
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+        
+        // Format AI response with source citations - ADD THIS MISSING FUNCTION
+        function formatWithSourceCitations(text) {
+            // Replace "Source X" mentions with clickable citations
+            return text.replace(/\b(Source\s+(\d+))\b/gi, '<span class="source-citation" data-source-id="$2" style="color: #1a73e8; cursor: pointer; text-decoration: underline;">$1</span>');
+        }
+        
+        // Load chat history
+        function loadChatHistory() {
+            $.get(`/chat/history/${sessionId}`, function(messages) {
+                // Clear chat history except welcome message
+                chatHistory.html(`
+                    <div class="welcome-message message message-ai">
+                        <div class="message-content">
+                            <p>Hello! I'm your AI assistant for {{ session_type }}. How can I help you today?</p>
+                        </div>
+                    </div>
+                `);
+                
+                // Add messages
+                messages.forEach(function(msg) {
+                    chatHistory.append(formatMessage(msg.content, msg.is_user, msg.timestamp));
+                });
+                
+                scrollToBottom();
+            });
+        }
+        
+        // Initial scroll to bottom
+        scrollToBottom();
+        
+        // Submit chat form
+        $('#chatForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const messageInput = $('#messageInput');
+            const message = messageInput.val().trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            chatHistory.append(formatMessage(message, true));
+            scrollToBottom();
+            
+            // Clear input
+            messageInput.val('');
+            
+            // Show typing indicator
+            $('#typingIndicator').show();
+            scrollToBottom();
+            
+            // Send message to server
+            $.ajax({
+                url: '/chat/send',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    session_id: sessionId,
+                    message: message
+                }),
+                success: function(response) {
+                    // Hide typing indicator
+                    $('#typingIndicator').hide();
+                    
+                    console.log('Response received:', response); // Debug log
+                    
+                    // Add AI response to chat
+                    let responseHtml = formatWithSourceCitations(response.response);
+                    
+                    // Add sources section if available
+                    if (response.sources && response.sources.length > 0) {
+                        console.log('Sources found:', response.sources); // Debug log
+                        
+                        // Create unique ID for this message's source data
+                        const sourceDataId = 'source-data-' + Date.now();
+                        
+                        // Add hidden source data for JavaScript
+                        responseHtml += '<div id="' + sourceDataId + '" class="source-data" data-sources=\'' + JSON.stringify(response.sources) + '\' style="display:none;"></div>';
+                        
+                        // Add visible sources list
+                        responseHtml += '<div class="sources-section" style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">';
+                        responseHtml += '<h6 style="margin: 0 0 10px 0; color: #666;"><i class="fas fa-book"></i> Sources:</h6>';
+                        responseHtml += '<ul style="margin: 0; padding-left: 20px;">';
+                        
+                        response.sources.forEach(function(source, index) {
+                            responseHtml += '<li style="margin-bottom: 5px;">';
+                            responseHtml += '<span class="source-citation" data-source-id="' + (index + 1) + '" data-source-data-id="' + sourceDataId + '" style="color: #1a73e8; cursor: pointer; text-decoration: underline;">';
+                            responseHtml += source.document_name + ' (Relevance: ' + source.similarity + ')';
+                            responseHtml += '</span>';
+                            responseHtml += '</li>';
+                        });
+                        
+                        responseHtml += '</ul></div>';
+                    }
+                    
+                    chatHistory.append(formatMessage(responseHtml, false, response.timestamp));
+                    scrollToBottom();
+                },
+                error: function(xhr, status, error) {
+                    // Hide typing indicator
+                    $('#typingIndicator').hide();
+                    
+                    // Add error message
+                    chatHistory.append(formatMessage(
+                        'Sorry, an error occurred. Please try again.', 
+                        false
+                    ));
+                    scrollToBottom();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

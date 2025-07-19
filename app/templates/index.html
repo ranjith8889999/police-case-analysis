@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome - Police Case Management{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(13, 110, 253, 0.8), rgba(11, 94, 215, 0.9)), url('https://images.unsplash.com/photo-1589391886645-d51941baf7fb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 6rem 0;
+        margin-top: -1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .hero-content {
+        max-width: 600px;
+    }
+    
+    .feature-card {
+        height: 100%;
+        transition: transform 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .feature-icon-blue {
+        background-color: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+    }
+    
+    .feature-icon-green {
+        background-color: rgba(25, 135, 84, 0.1);
+        color: #198754;
+    }
+    
+    .feature-icon-yellow {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .cta-section {
+        background-color: #f8f9fa;
+        padding: 4rem 0;
+        margin-top: 4rem;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Remove container class to allow hero to be full width -->
+</div>
+
+<!-- Hero Section -->
+<section class="hero-section animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="display-4 fw-bold mb-4">Police Case Management System</h1>
+            <p class="lead mb-4">Advanced AI-powered analytics for law enforcement case analysis, bail procedures, and human behavior patterns.</p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg px-4 me-md-2 animate__animated animate__pulse animate__infinite animate__slower">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </a>
+                <a href="{{ url_for('auth.signup') }}" class="btn btn-outline-light btn-lg px-4">
+                    <i class="fas fa-user-plus me-2"></i>Register
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Add container back -->
+<div class="container">
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="text-center mb-5">
+        <h2>Key Features</h2>
+        <p class="text-muted">Unlock powerful insights with our AI-powered analysis tools</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card feature-card text-center p-4 animate__animated animate__fadeInUp">
+                <div class="feature-icon feature-icon-blue">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <h3>Case Section Analysis</h3>
+                <p class="text-muted">Analyze case sections and legal statutes to find relevant precedents and insights for your investigations.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card text-center p-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                <div class="feature-icon feature-icon-green">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3>Bail Analysis</h3>
+                <p class="text-muted">Assessment of bail procedures, precedents, and decisions to inform bail recommendations.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card text-center p-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+                <div class="feature-icon feature-icon-yellow">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Human Analysis</h3>
+                <p class="text-muted">Analyze human behavior patterns in criminal cases to identify trends and insights.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section text-center">
+    <h2>Ready to get started?</h2>
+    <p class="lead mb-4">Sign in to access powerful case analysis tools.</p>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg px-5 py-3 animate__animated animate__pulse animate__infinite animate__slower">
+        <i class="fas fa-sign-in-alt me-2"></i>Sign In Now
+    </a>
+</section>
+
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Case Section Analysis - Police Case Management{% endblock %}
+
+{% block extra_head %}
+<style>
+    .case-analysis-header {
+        margin-bottom: 2rem;
+    }
+    
+    .analysis-form {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .response-container {
+        display: none;
+        margin-top: 2rem;
+        border-radius: 10px;
+        padding: 1.5rem;
+        background-color: #fff;
+        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .response-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .response-icon {
+        background-color: #e9f5ff;
+        color: #0d6efd;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        margin: 2rem 0;
+    }
+    
+    #responseText {
+        line-height: 1.7;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="case-analysis-header animate__animated animate__fadeIn">
+    <h1 class="display-6">
+        <i class="fas fa-gavel me-2"></i>
+        Case Section Analysis
+    </h1>
+    <p class="lead">Enter case details to analyze relevant legal sections and precedents.</p>
+</div>
+
+<div class="analysis-form animate__animated animate__fadeIn">
+    <form id="caseAnalysisForm">
+        <div class="mb-3">
+            <label for="caseDetails" class="form-label">
+                <i class="fas fa-align-left me-1"></i>
+                Case Details
+            </label>
+            <textarea class="form-control" id="caseDetails" rows="5" placeholder="Describe the case scenario in detail..." required></textarea>
+        </div>
+        
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label for="keyFacts" class="form-label">
+                    <i class="fas fa-list me-1"></i>
+                    Key Facts
+                </label>
+                <input type="text" class="form-control" id="keyFacts" placeholder="Separate key facts with commas">
+            </div>
+            <div class="col-md-6">
+                <label for="offenseType" class="form-label">
+                    <i class="fas fa-exclamation-circle me-1"></i>
+                    Offense Type
+                </label>
+                <select class="form-select" id="offenseType">
+                    <option value="">Select offense type (optional)</option>
+                    <option value="violent">Violent Crime</option>
+                    <option value="property">Property Crime</option>
+                    <option value="cyber">Cyber Crime</option>
+                    <option value="financial">Financial Crime</option>
+                    <option value="narcotics">Drug-related Offense</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search me-2"></i>Analyze Case
+        </button>
+    </form>
+</div>
+
+<div class="loading-spinner" id="loadingSpinner">
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <p class="mt-2 text-center">Analyzing case details...</p>
+</div>
+
+<div class="response-container animate__animated animate__fadeIn" id="responseContainer">
+    <div class="response-header">
+        <div class="response-icon">
+            <i class="fas fa-robot"></i>
+        </div>
+        <h3>Analysis Results</h3>
+    </div>
+    <hr>
+    <div id="responseText"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#caseAnalysisForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const caseDetails = $('#caseDetails').val();
+            const keyFacts = $('#keyFacts').val();
+            const offenseType = $('#offenseType').val();
+            
+            if (!caseDetails.trim()) {
+                alert('Please enter case details');
+                return;
+            }
+            
+            // Show loading spinner
+            $('#loadingSpinner').show();
+            $('#responseContainer').hide();
+            
+            // Prepare data for submission
+            const analysisData = {
+                session_id: 'case-analysis',
+                message: `Case Details: ${caseDetails}\nKey Facts: ${keyFacts}\nOffense Type: ${offenseType || 'Not specified'}`
+            };
+            
+            // Send to chat endpoint
+            $.ajax({
+                url: '/chat/send',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(analysisData),
+                success: function(response) {
+                    // Hide spinner
+                    $('#loadingSpinner').hide();
+                    
+                    // Display results
+                    $('#responseText').html(formatResponse(response.response));
+                    $('#responseContainer').show();
+                    
+                    // Scroll to response
+                    $('html, body').animate({
+                        scrollTop: $('#responseContainer').offset().top - 100
+                    }, 500);
+                },
+                error: function(xhr, status, error) {
+                    $('#loadingSpinner').hide();
+                    alert('An error occurred while processing your request. Please try again.');
+                    console.error('Error:', error);
+                }
+            });
+        });
+        
+        // Format response with some basic markdown-like processing
+        function formatResponse(text) {
+            // Process headings
+            text = text.replace(/^##\s(.+)$/gm, '<h4>$1</h4>');
+            text = text.replace(/^#\s(.+)$/gm, '<h3>$1</h3>');
+            
+            // Process bold
+            text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            
+            // Process lists
+            text = text.replace(/^\*\s(.+)$/gm, '<li>$1</li>');
+            text = text.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+            
+            // Process paragraphs
+            const paragraphs = text.split('\n\n');
+            return paragraphs.map(p => {
+                if (!p.trim()) return '';
+                if (p.includes('<h3>') || p.includes('<h4>') || p.includes('<ul>')) return p;
+                return `<p>${p}</p>`;
+            }).join('');
+        }
+    });
+</script>
+{% endblock %}

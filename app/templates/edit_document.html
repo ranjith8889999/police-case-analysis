@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Document{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-edit"></i> Edit Document</h4>
+                    <a href="{{ url_for('admin.manage_documents') }}" class="btn btn-secondary btn-sm float-right">
+                        <i class="fas fa-arrow-left"></i> Back to Documents
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin.update_document', document_id=document.id) }}" method="POST">
+                        <div class="form-group">
+                            <label for="title">Document Title</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ document.title }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="document_type">Document Type</label>
+                            <select class="form-control" id="document_type" name="document_type" required>
+                                <option value="Case Section Analysis" {% if document.document_type == 'Case Section Analysis' %}selected{% endif %}>Case Section Analysis</option>
+                                <option value="Bail Analysis" {% if document.document_type == 'Bail Analysis' %}selected{% endif %}>Bail Analysis</option>
+                                <option value="Human Analysis" {% if document.document_type == 'Human Analysis' %}selected{% endif %}>Human Analysis</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="filename">Filename</label>
+                            <input type="text" class="form-control" value="{{ document.filename }}" readonly>
+                            <small class="form-text text-muted">Filename cannot be changed</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="content">Content</label>
+                            <textarea class="form-control" id="content" name="content" rows="15" placeholder="Edit document content...">{{ document.content }}</textarea>
+                            <small class="form-text text-muted">Editing content will recreate document chunks for AI analysis</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Document
+                            </button>
+                            <a href="{{ url_for('admin.manage_documents') }}" class="btn btn-secondary ml-2">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

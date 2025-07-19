@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Police Case Management{% endblock %}
+
+{% block extra_head %}
+<style>
+    .auth-container {
+        max-width: 450px;
+        margin: 2rem auto;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        background: linear-gradient(to right bottom, #ffffff, #f8f9fa);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-icon {
+        font-size: 3rem;
+        color: #0d6efd;
+        margin-bottom: 1rem;
+    }
+    
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-signup {
+        padding: 0.6rem;
+        font-weight: 500;
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container animate__animated animate__fadeIn">
+    <div class="auth-header">
+        <div class="auth-icon">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h2>Create Account</h2>
+        <p class="text-muted">Sign up to get started</p>
+    </div>
+      <form method="post" action="{{ url_for('auth.signup') }}" id="signupForm">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+            <label for="username">Username</label>
+            <small class="text-muted">Choose a unique username</small>
+        </div>
+        
+        <div class="form-floating">
+            <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+            <label for="email">Email address</label>
+            <small class="text-muted">Authorized emails: kuncharapuranjith@gmail.com, ranjith888999@gmail.com</small>
+        </div>
+        
+        <div class="form-floating">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+            <label for="password">Password</label>
+        </div>
+        
+        <div class="form-floating">
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+            <label for="confirm_password">Confirm Password</label>
+        </div>
+        
+        <div class="d-grid gap-2 mt-4">
+            <button class="btn btn-primary btn-signup animate__animated animate__pulse" type="submit">
+                <i class="fas fa-user-plus me-2"></i>Create Account
+            </button>
+        </div>
+    </form>
+    
+    <div class="auth-footer">
+        <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>    $(document).ready(function() {
+        $('#signupForm').on('submit', function(e) {
+            const username = $('#username').val().trim();
+            const password = $('#password').val();
+            const confirmPassword = $('#confirm_password').val();
+            
+            // Validate username
+            if (username.length < 3) {
+                e.preventDefault();
+                alert('Username must be at least 3 characters long!');
+                return false;
+            }
+            
+            // Validate password match
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+            
+            // Validate password strength
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('Password must be at least 6 characters long!');
+                return false;
+            }
+            
+            return true;
+        });
+    });
+</script>
+{% endblock %}

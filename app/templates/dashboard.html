@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Police Case Management{% endblock %}
+
+{% block extra_head %}
+<style>
+    .dashboard-welcome {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    }
+    
+    .dashboard-cards {
+        margin-top: 2rem;
+    }
+    
+    .dashboard-card {
+        height: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .card-case {
+        background: linear-gradient(to right bottom, #4e73df, #2e59d9);
+        color: white;
+    }
+    
+    .card-bail {
+        background: linear-gradient(to right bottom, #1cc88a, #169a67);
+        color: white;
+    }
+    
+    .card-human {
+        background: linear-gradient(to right bottom, #f6c23e, #e4b035);
+        color: white;
+    }
+    
+    .dashboard-stats {
+        margin-top: 3rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome animate__animated animate__fadeIn">
+    <h1 class="display-6">
+        <i class="fas fa-tachometer-alt me-2"></i>
+        Dashboard
+    </h1>
+    <p class="lead">Welcome to the Police Case Management System.</p>
+</div>
+
+<div class="dashboard-cards">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card dashboard-card card-case animate__animated animate__fadeInUp">
+                <div class="card-body text-center p-4">
+                    <div class="card-icon">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h3 class="card-title">Case Section Analysis</h3>
+                    <p class="card-text">Analyze police case sections and legal statutes.</p>
+                    <a href="{{ url_for('main.case_section_analysis') }}" class="btn btn-light mt-3">
+                        <i class="fas fa-arrow-right me-1"></i>
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dashboard-card card-bail animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                <div class="card-body text-center p-4">
+                    <div class="card-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3 class="card-title">Bail Analysis</h3>
+                    <p class="card-text">Analyze bail procedures and decisions.</p>
+                    <a href="{{ url_for('main.bail_analysis') }}" class="btn btn-light mt-3">
+                        <i class="fas fa-arrow-right me-1"></i>
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dashboard-card card-human animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+                <div class="card-body text-center p-4">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="card-title">Human Analysis</h3>
+                    <p class="card-text">Analyze human behavior and patterns in cases.</p>
+                    <a href="{{ url_for('main.human_analysis') }}" class="btn btn-light mt-3">
+                        <i class="fas fa-arrow-right me-1"></i>
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-stats mt-5">
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Recent Updates</h5>
+        </div>
+        <div class="card-body">
+            <p>Welcome to the Police Case Analysis System. This platform allows you to:</p>
+            <ul>
+                <li>Upload and manage documents for different case analysis types</li>
+                <li>Analyze cases based on sections and legal statutes</li>
+                <li>Perform bail analysis for pending cases</li>
+                <li>Analyze human behavior and patterns in criminal cases</li>
+                <li>Ask questions and get AI-powered insights from document knowledge base</li>
+            </ul>
+            <p>Get started by selecting one of the analysis categories above or visit the Admin panel to upload documents.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
