@@ -1,8 +1,9 @@
+# Alternative requirements.txt for platforms that have issues with pgvector
 flask==2.3.3
 flask-login==0.6.2
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.7
-pgvector==0.2.4
+# pgvector==0.2.4  # Commented out - can use SQLAlchemy Text fallback
 langchain==0.1.0
 langchain-core==0.1.23
 langchain-text-splitters==0.0.1
